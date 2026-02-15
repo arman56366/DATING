@@ -29,6 +29,11 @@ const ProfilePage = () => {
   const [isFetching, setIsFetching] = useState(false);
 
   const UpgradeToPro = () => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot upgrade: token not set");
+      return;
+    }
+    
     setIsFetching(true);
     var newHeader = new Headers();
     newHeader.append("Accept", "application/json");

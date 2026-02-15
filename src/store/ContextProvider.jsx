@@ -14,6 +14,12 @@ const DatingContextProvider = (props) => {
   const [pageCount, setPageCount] = useState(1);
 
   const getUsers = () => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot fetch users: token not set");
+      setIsGettingUsers(false);
+      return;
+    }
+    
     setIsGettingUsers(true);
     var newHeader = new Headers();
     newHeader.append("Accept", "application/json");
@@ -30,21 +36,24 @@ const DatingContextProvider = (props) => {
       .then((result) => {
         setIsGettingUsers(false);
         console.log(result);
-        if (result.success && result.users) {
-          setHasNextPage(result.has_next_page);
+        if (result.success && Array.isArray(result.users)) {
+          setHasNextPage(result.has_next_page || false);
           if (result.has_next_page) {
             setPageCount((prevCount) => {
               return prevCount + 1;
             });
           }
           setUsers((prevUsers) => {
-            return [...prevUsers, ...result.users];
+            return [...prevUsers, ...(result.users || [])];
           });
         } else if (result.error) {
           console.log("Error:", result.error);
         }
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        setIsGettingUsers(false);
+        console.log("error", error);
+      });
   };
 
   useEffect(() => {
@@ -58,6 +67,12 @@ const DatingContextProvider = (props) => {
   const [gettingMatches, setGettingMatches] = useState(false);
 
   const getMatches = () => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot fetch matches: token not set");
+      setGettingMatches(false);
+      return;
+    }
+    
     setGettingMatches(true);
     var newHeader = new Headers();
     newHeader.append("Accept", "application/json");
@@ -73,13 +88,16 @@ const DatingContextProvider = (props) => {
       .then((response) => response.json())
       .then((result) => {
         setGettingMatches(false);
-        if (result.success && result.matches) {
+        if (result.success && Array.isArray(result.matches)) {
           setMatches(result.matches);
         } else if (result.error) {
           console.log("Error getting matches:", result.error);
         }
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        setGettingMatches(false);
+        console.log("error", error);
+      });
   };
 
   const [profile, setProfile] = useState({ gender: { id: 1 } });
@@ -87,6 +105,12 @@ const DatingContextProvider = (props) => {
   const [isGettingProfile, setIsGettingProfile] = useState(false);
 
   const getProfile = () => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot fetch profile: token not set");
+      setIsGettingProfile(false);
+      return;
+    }
+    
     setIsGettingProfile(true);
     var newHeader = new Headers();
     newHeader.append("Accept", "application/json");
@@ -109,7 +133,10 @@ const DatingContextProvider = (props) => {
           console.log("Error getting profile:", result.error);
         }
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        setIsGettingProfile(false);
+        console.log("error", error);
+      });
   };
 
   useEffect(() => {
@@ -121,6 +148,11 @@ const DatingContextProvider = (props) => {
 
   const unmatchUser = (confirmation, id) => {
     console.log(confirmation, "confirmed");
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot unmatch: token not set");
+      return;
+    }
+    
     if (confirmation) {
       var newHeader = new Headers();
       newHeader.append("Accept", "application/json");

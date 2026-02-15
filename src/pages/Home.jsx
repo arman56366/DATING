@@ -80,6 +80,11 @@ const HomePage = () => {
   } = colors;
 
   const likeUser = (id) => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot like: token not set");
+      return;
+    }
+    
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
@@ -103,6 +108,11 @@ const HomePage = () => {
   };
 
   const dislikeUser = (id) => {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot dislike: token not set");
+      return;
+    }
+    
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");

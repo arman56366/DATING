@@ -147,6 +147,11 @@ const EditProfile = () => {
   }, []);
 
   function updateUserInfo() {
+    if (!tokenValue || tokenValue.trim() === "") {
+      console.log("Cannot update profile: token not set");
+      return;
+    }
+    
     MainButton.showProgress();
     var newHeader = new Headers();
     newHeader.append("Accept", "application/json");
