@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import BASE_URL from "../config";
@@ -8,13 +8,16 @@ import HeartIcon from "../components/icons/Heart";
 
 const LoginPage = () => {
   const { setTokenValue, setTokenIsSet } = useContext(context);
-  const [isLoggingIn, setIsLoggingIn] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const navigate = useNavigate();
 
   const viewPortHeight = window.Telegram.WebApp.viewportHeight;
+  const colors = window.Telegram.WebApp.themeParams;
+  const { button_color: btnColor, text_color: txtColor } = colors;
 
-  const autoLogin = () => {
+  const handleLogin = () => {
+    setIsLoggingIn(true);
     const queryString = window.Telegram.WebApp.initData;
 
     var newHeader = new Headers();
@@ -36,32 +39,62 @@ const LoginPage = () => {
       .then((result) => {
         setIsLoggingIn(false);
         if (result.success) {
-          // Сначала сохраняем токен в sessionStorage и context
           sessionStorage.setItem("dateUserToken", result.token);
           setTokenValue(result.token);
           setTokenIsSet(true);
-          
-          // Потом навигируем
           window.Telegram.WebApp.expand();
           navigate("/home");
         } else {
-          navigate("/signup");
+          console.log("Login failed, please create account");
         }
         console.log(result);
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        setIsLoggingIn(false);
+        console.log("error", error);
+      });
   };
-  useEffect(() => {
-    autoLogin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div
-      style={{ height: viewPortHeight }}
-      className="text-white flex items-center justify-center relative"
+      style={{ height: viewPortHeight, backgroundColor: "rgba(0,0,0,0.95)" }}
+      className="text-white flex flex-col items-center justify-center relative gap-6 px-6"
     >
-      {isLoggingIn && <HeartIcon styles="w-9 h-9 animate-ping text-red-600" />}
+      <HeartIcon styles="w-16 h-16 text-red-600 mb-4" />
+      
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-2">Dating App</h1>
+        <p className="text-gray-400">Find your perfect match</p>
+      </div>
+
+      {isLoggingIn ? (
+        <div className="flex flex-col items-center gap-3">
+          <HeartIcon styles="w-8 h-8 animate-ping text-red-600" />
+          <p className="text-sm text-gray-400">Logging in...</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-xs flex flex-col gap-3 mt-8">
+          <button
+            onClick={() => navigate("/signup")}
+            style={{ backgroundColor: btnColor, color: txtColor }}
+            className="w-full py-3 rounded-lg font-semibold transition-opacity hover:opacity-90"
+          >
+            Create Account
+          </button>
+
+          <button
+            onClick={handleLogin}
+            style={{ 
+              backgroundColor: "transparent", 
+              border: `2px solid ${btnColor}`,
+              color: btnColor 
+            }}
+            className="w-full py-3 rounded-lg font-semibold transition-opacity hover:opacity-90"
+          >
+            Login
+          </button>
+        </div>
+      )}
     </div>
   );
 };
