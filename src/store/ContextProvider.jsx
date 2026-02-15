@@ -30,15 +30,19 @@ const DatingContextProvider = (props) => {
       .then((result) => {
         setIsGettingUsers(false);
         console.log(result);
-        setHasNextPage(result.has_next_page);
-        if (result.has_next_page) {
-          setPageCount((prevCount) => {
-            return prevCount + 1;
+        if (result.success && result.users) {
+          setHasNextPage(result.has_next_page);
+          if (result.has_next_page) {
+            setPageCount((prevCount) => {
+              return prevCount + 1;
+            });
+          }
+          setUsers((prevUsers) => {
+            return [...prevUsers, ...result.users];
           });
+        } else if (result.error) {
+          console.log("Error:", result.error);
         }
-        setUsers((prevUsers) => {
-          return [...prevUsers, ...result.users];
-        });
       })
       .catch((error) => console.log("error", error));
   };
@@ -69,8 +73,10 @@ const DatingContextProvider = (props) => {
       .then((response) => response.json())
       .then((result) => {
         setGettingMatches(false);
-        if (result.success) {
+        if (result.success && result.matches) {
           setMatches(result.matches);
+        } else if (result.error) {
+          console.log("Error getting matches:", result.error);
         }
       })
       .catch((error) => console.log("error", error));
@@ -96,8 +102,12 @@ const DatingContextProvider = (props) => {
       .then((response) => response.json())
       .then((result) => {
         setIsGettingProfile(false);
-        setProfile(result.user);
-        console.log(result);
+        if (result.success && result.user) {
+          setProfile(result.user);
+          console.log(result);
+        } else if (result.error) {
+          console.log("Error getting profile:", result.error);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -132,6 +142,10 @@ const DatingContextProvider = (props) => {
         .then((response) => response.json())
         .then((result) => {
           console.log(result);
+          if (result.success) {
+            // Remove from matches list
+            setMatches(matches.filter(m => m.id !== id));
+          }
         })
         .catch((error) => console.log("error", error));
     }

@@ -36,15 +36,17 @@ const LoginPage = () => {
       .then((result) => {
         setIsLoggingIn(false);
         if (result.success) {
-          navigate("/home");
+          // Сначала сохраняем токен в sessionStorage и context
+          sessionStorage.setItem("dateUserToken", result.token);
           setTokenValue(result.token);
           setTokenIsSet(true);
-
-          sessionStorage.setItem("dateUserToken", result.token);
+          
+          // Потом навигируем
+          window.Telegram.WebApp.expand();
+          navigate("/home");
         } else {
           navigate("/signup");
         }
-        window.Telegram.WebApp.expand();
         console.log(result);
       })
       .catch((error) => console.log("error", error));
